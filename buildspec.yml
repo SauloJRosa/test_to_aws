@@ -9,6 +9,7 @@ phases:
       - mv terraform /usr/local/bin/
   build:
     commands:
+      - ls -l
       - cd infra
       - terraform init
       - terraform fmt -check
