@@ -9,9 +9,16 @@ phases:
       - mv terraform /usr/local/bin/
   build:
     commands:
-      - echo "Conteúdo do repositório"
-      - ls -l || true
-      - cd infra
+      - echo "Entrando no diretório correto..."
+      - pwd
+      - echo "Listando conteúdo da pasta atual:"
+      - ls -l
+      - echo "Listando subpastas:"
+      - ls -l ../
+      - echo "Tentando entrar na pasta infra..."
+      - cd infra || exit 1
+      - echo "Listando conteúdo da pasta infra:"
+      - ls -l
       - terraform init
       - terraform fmt -check
       - terraform validate
