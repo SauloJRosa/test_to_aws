@@ -9,6 +9,9 @@ phases:
       - mv terraform /usr/local/bin/
   build:
     commands:
+      - cd src && zip -r ../output/lambda_function.zip . && cd ..
+      - cd dependencies && zip -rg ../output/lambda_function.zip . && cd ..
+      - ls -la output/
       - cd infra
       - terraform init
       - terraform validate
