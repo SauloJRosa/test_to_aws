@@ -27,10 +27,38 @@ phases:
   post_build:
     commands:
       - terraform apply -auto-approve -input=false tfplan
-      - sleep 15
-      - pwd  # Mostra o diretório atual para debug
-      - ls -la  # Lista os arquivos para verificar se o state existe
-      - aws s3 cp terraform.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate || echo "Arquivo de estado não encontrado, pulando upload"
+
+      # Espera e verifica o estado
+      - sleep 10
+      - echo "Verificando arquivos de estado..."
+      - ls -la
+
+      # Usa o backup se o principal estiver vazio
+      - if [ ! -s terraform.tfstate ] && [ -s terraform.tfstate.backup ]; then
+          echo "Usando backup do estado...";
+          cp terraform.tfstate.backup terraform.tfstate;
+        fi
+
+      # Verificação final do estado
+      - |
+        if [ -s terraform.tfstate ]; then
+          echo "Upload do estado (tamanho: $(wc -c < terraform.tfstate) bytes)";
+          aws s3 cp terraform.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate;
+        else
+          echo "ERRO: Estado vazio após apply";
+          echo "Tentando recuperar via pull...";
+          terraform state pull > recovered_state.tfstate;
+          if [ -s recovered_state.tfstate ]; then
+            aws s3 cp recovered_state.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate;
+          else
+            echo "FALHA: Não foi possível recuperar o estado";
+            exit 1;
+          fi
+        fi
+
+      #- pwd  # Mostra o diretório atual para debug
+      #- ls -la  # Lista os arquivos para verificar se o state existe
+      #- aws s3 cp terraform.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate || echo "Arquivo de estado não encontrado, pulando upload"
 artifacts:
   files:
     - output/lambda_function.zip
