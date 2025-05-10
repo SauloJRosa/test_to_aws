@@ -28,7 +28,7 @@ phases:
     commands:
       - terraform apply -auto-approve -input=false tfplan
       - pwd  # Mostra o diretório atual para debug
-      - ls -la infra/  # Lista os arquivos para verificar se o state existe
+      - ls -la  # Lista os arquivos para verificar se o state existe
       - aws s3 cp infra/terraform.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate || echo "Arquivo de estado não encontrado, pulando upload"
 artifacts:
   files:
