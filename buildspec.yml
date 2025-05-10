@@ -3,12 +3,5 @@ version: 0.2
 phases:
   build:
     commands:
-      - echo "=== Diretório atual ==="
-      - pwd
-      - echo "=== Conteúdo da pasta ==="
-      - ls -l
-      - echo "=== Subpastas ==="
-      - ls -l ../
-      - echo "=== Entrando na pasta infra ==="
-      - cd infra || exit 1
-      - ls -l
+      - chmod +x check_buildspec.sh
+      - ./check_buildspec.sh
