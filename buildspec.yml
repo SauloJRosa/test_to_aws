@@ -31,7 +31,6 @@ phases:
       - ls -la  # Lista os arquivos para verificar se o state existe
       - ls -lh terraform.tfstate
       - cat terraform.tfstate | jq '.resources[] | .name'
-      - echo "Total de recursos: $(cat terraform.tfstate | jq '.resources | length')"
       - aws s3 cp terraform.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate || echo "Arquivo de estado não encontrado, pulando upload"
 artifacts:
   files:
