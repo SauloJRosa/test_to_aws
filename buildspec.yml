@@ -2,11 +2,10 @@ version: 0.2
 
 phases:
   install:
-    runtime-versions:
-      python: 3.10
+    #runtime-versions:
+    #  python: 3.10
     commands:
-      - terraform init -backend-config="state-bucket-terraform-123" -backend-config="key=lambda-deployment/terraform.tfstate"
-      - pip install -r requirements.txt -t ./dependencies
+     # - pip install -r requirements.txt -t ./dependencies
       - apt-get update && apt-get install -y unzip
       - curl -LO https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
       - unzip terraform_1.5.0_linux_amd64.zip
@@ -15,15 +14,21 @@ phases:
     commands:
       - echo "Preparando pacote Lambda..."
       - mkdir -p output
+      - aws s3 cp s3://seu-bucket-terraform-state/lambda-deployment/terraform.tfstate infra/terraform.tfstate || echo "Arquivo de estado não encontrado, iniciando novo estado"
   build:
     commands:
       - cd src && zip -r ../output/lambda_function.zip . && cd ..
-      - cd dependencies && zip -rg ../output/lambda_function.zip . && cd ..
+      #- cd dependencies && zip -rg ../output/lambda_function.zip . && cd ..
       - ls -la output/
       - cd infra
-      - terraform init
+      - terraform init -backend-config="bucket=seu-bucket-terraform-state" -backend-config="key=lambda-deployment/terraform.tfstate"
       - terraform validate
-      - terraform plan -out=tfplan
+      - terraform plan -out=tfplan -input=false
   post_build:
     commands:
-      - terraform apply -auto-approve tfplan
+      - terraform apply -auto-approve -input=false tfplan
+      - aws s3 cp terraform.tfstate s3://seu-bucket-terraform-state/lambda-deployment/terraform.tfstate
+
+artifacts:
+  files:
+    - output/lambda_function.zip
