@@ -27,7 +27,6 @@ phases:
   post_build:
     commands:
       - terraform apply -auto-approve -input=false tfplan
-      - terraform force-unlock -force  # Remove qualquer lock pendente
       - sleep 5  # Espera para garantir que o estado foi salvo
       - pwd  # Mostra o diretório atual para debug
       - ls -la  # Lista os arquivos para verificar se o state existe
