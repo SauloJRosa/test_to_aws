@@ -1,28 +1,14 @@
 version: 0.2
 
 phases:
-  install:
-    commands:
-      - apt-get update && apt-get install -y unzip
-      - curl -LO https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
-      - unzip terraform_1.5.0_linux_amd64.zip
-      - mv terraform /usr/local/bin/
   build:
     commands:
-      - echo "Entrando no diretório correto..."
+      - echo "=== Diretório atual ==="
       - pwd
-      - echo "Listando conteúdo da pasta atual:"
+      - echo "=== Conteúdo da pasta ==="
       - ls -l
-      - echo "Listando subpastas:"
+      - echo "=== Subpastas ==="
       - ls -l ../
-      - echo "Tentando entrar na pasta infra..."
+      - echo "=== Entrando na pasta infra ==="
       - cd infra || exit 1
-      - echo "Listando conteúdo da pasta infra:"
       - ls -l
-      - terraform init
-      - terraform fmt -check
-      - terraform validate
-      - terraform plan -out=tfplan -input=false
-  post_build:
-    commands:
-      - terraform apply -input=false tfplan
