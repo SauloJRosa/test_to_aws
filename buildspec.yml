@@ -14,20 +14,20 @@ phases:
     commands:
       - echo "Preparando pacote Lambda..."
       - mkdir -p output
-      - aws s3 cp s3://seu-bucket-terraform-state/lambda-deployment/terraform.tfstate infra/terraform.tfstate || echo "Arquivo de estado não encontrado, iniciando novo estado"
+      - aws s3 cp s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate infra/terraform.tfstate || echo "Arquivo de estado não encontrado, iniciando novo estado"
   build:
     commands:
       - cd src && zip -r ../output/lambda_function.zip . && cd ..
       #- cd dependencies && zip -rg ../output/lambda_function.zip . && cd ..
       - ls -la output/
       - cd infra
-      - terraform init -backend-config="bucket=seu-bucket-terraform-state" -backend-config="key=lambda-deployment/terraform.tfstate"
+      - terraform init -backend-config="bucket=state-bucket-terraform-123" -backend-config="key=lambda-deployment/terraform.tfstate"
       - terraform validate
       - terraform plan -out=tfplan -input=false
   post_build:
     commands:
       - terraform apply -auto-approve -input=false tfplan
-      - aws s3 cp terraform.tfstate s3://seu-bucket-terraform-state/lambda-deployment/terraform.tfstate
+      - aws s3 cp terraform.tfstate s3://state-bucket-terraform-123/lambda-deployment/terraform.tfstate
 
 artifacts:
   files:
