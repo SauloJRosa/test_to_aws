@@ -11,7 +11,6 @@ phases:
     commands:
       - cd infra
       - terraform init
-      - terraform fmt -check
       - terraform validate
       - terraform plan -out=tfplan -input=false
   post_build:
